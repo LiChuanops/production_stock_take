@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="zh-Hans">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#0f172a" />
+    <meta name="description" content="包装房冷房盘点 CR3 / CR3T / CR5c · 离线优先" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+    <title>Packing Room Stock Take</title>
+    <style>
+      /* 这段样式不靠 Tailwind,故意用最老派的写法 ——
+         就算主要的 CSS 整个载入失败,下面的开机画面还是看得见。 */
+      #boot {
+        font-family: 'Segoe UI', Arial, sans-serif;
+        padding: 24px 20px;
+        color: #0f172a;
+        max-width: 520px;
+        margin: 0 auto;
+      }
+      #boot-msg {
+        text-align: center;
+        padding-top: 80px;
+        color: #64748b;
+        font-size: 15px;
+      }
+      #boot-err {
+        display: none;
+        border: 2px solid #e11d48;
+        border-radius: 12px;
+        padding: 16px;
+        margin-top: 40px;
+        background: #fff1f2;
+      }
+      #boot-err h1 {
+        font-size: 17px;
+        margin: 0 0 8px;
+        color: #9f1239;
+      }
+      #boot-err p {
+        font-size: 14px;
+        line-height: 1.6;
+        margin: 0 0 10px;
+        color: #334155;
+      }
+      #boot-detail {
+        font-family: monospace;
+        font-size: 12px;
+        line-height: 1.5;
+        background: #fff;
+        border: 1px solid #fecdd3;
+        border-radius: 8px;
+        padding: 10px;
+        margin: 10px 0;
+        word-break: break-all;
+        white-space: pre-wrap;
+        color: #7f1d1d;
+      }
+      #boot-err button {
+        width: 100%;
+        min-height: 52px;
+        font-size: 16px;
+        font-weight: 600;
+        color: #fff;
+        background: #0f172a;
+        border: 0;
+        border-radius: 10px;
+        margin-top: 6px;
+      }
+      #boot-err button.secondary {
+        background: #64748b;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <!-- React 挂载成功就会把这整块换掉。换不掉 = 出事了,
+           而出事的时候使用者至少看得到发生什么事,不是一片白。 -->
+      <div id="boot">
+        <div id="boot-msg">载入中… Loading…</div>
+        <div id="boot-err">
+          <h1>App 载入失败 App failed to load</h1>
+          <p>
+            资料没有丢失,还留在这台机器里。<br />
+            Your data is safe on this device.
+          </p>
+          <div id="boot-detail"></div>
+          <p>
+            常见原因:清除快取后没有网络(需要连一次网重新下载),或这台机器的浏览器太旧。<br />
+            Usually: no network after clearing cache, or the browser on this device is too old.
+          </p>
+          <button onclick="location.reload()">重新载入 Reload</button>
+          <button class="secondary" id="boot-reset">清除并重新载入 Reset &amp; reload</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      /* 刻意用 ES5 写法(var / function,不用箭头函式和样板字串)——
+         这段的责任就是在「新语法跑不动的旧浏览器」上也能显示错误。 */
+      (function () {
+        var shown = false;
+        function show(what) {
+          if (shown) return;
+          shown = true;
+          var msg = document.getElementById('boot-msg');
+          var box = document.getElementById('boot-err');
+          var detail = document.getElementById('boot-detail');
+          if (msg) msg.style.display = 'none';
+          if (box) box.style.display = 'block';
+          if (detail) {
+            detail.textContent =
+              String(what) +
+              '\n\nUA: ' +
+              navigator.userAgent +
+              '\n线上 online: ' +
+              navigator.onLine;
+          }
+        }
+
+        window.addEventListener('error', function (e) {
+          show((e && (e.message || e.type)) || 'script error');
+        });
+        window.addEventListener('unhandledrejection', function (e) {
+          show((e && e.reason && (e.reason.message || e.reason)) || 'unhandled rejection');
+        });
+
+        // React 没在 15 秒内挂上,就当作失败
+        setTimeout(function () {
+          if (!window.__APP_BOOTED__) show('15 秒内没有启动 / did not start within 15s');
+        }, 15000);
+
+        // 「清除并重新载入」:退掉 service worker、清掉快取,再硬重新整理。
+        // 刻意不动 IndexedDB 和 localStorage —— 还没同步的盘点资料在那里面。
+        var reset = document.getElementById('boot-reset');
+        if (reset) {
+          reset.onclick = function () {
+            var done = function () {
+              location.reload();
+            };
+            try {
+              if (navigator.serviceWorker && navigator.serviceWorker.getRegistrations) {
+                navigator.serviceWorker.getRegistrations().then(function (rs) {
+                  for (var i = 0; i < rs.length; i++) rs[i].unregister();
+                  if (window.caches && caches.keys) {
+                    caches.keys().then(function (ks) {
+                      var left = ks.length;
+                      if (!left) return done();
+                      for (var j = 0; j < ks.length; j++) {
+                        caches.delete(ks[j]).then(function () {
+                          if (--left <= 0) done();
+                        });
+                      }
+                    });
+                  } else done();
+                });
+              } else done();
+            } catch (err) {
+              done();
+            }
+          };
+        }
+      })();
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

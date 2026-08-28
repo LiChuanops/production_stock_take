@@ -1,0 +1,89 @@
+@import 'tailwindcss';
+
+@theme {
+  --font-sans: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Noto Sans SC', 'Microsoft YaHei',
+    Roboto, Arial, sans-serif;
+
+  --color-ink: #0f172a;
+  --color-ink-2: #334155;
+  --color-muted: #64748b;
+  --color-line: #e2e8f0;
+  --color-canvas: #f1f5f9;
+}
+
+/* 小屏幕手机是主要目标:字不能小于 16px,否则 iOS 一聚焦就放大画面。 */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  /* 戴手套点击时不要有 300ms 延迟,也不要橡皮筋回弹 */
+  touch-action: manipulation;
+  overscroll-behavior-y: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 数字输入框不要上下箭头,冷房里很容易误触 */
+input[type='number'] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+input[type='number']::-webkit-outer-spin-button,
+input[type='number']::-webkit-inner-spin-button {
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* 长列表滚动时省下不必要的排版计算 */
+.list-item {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 76px;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.animate-toast-in {
+  animation: toast-in 0.15s ease-out;
+}
+.animate-sheet-up {
+  animation: sheet-up 0.18s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-toast-in,
+  .animate-sheet-up {
+    animation: none;
+  }
+}
+
+/* 安全区(浏海屏 / 手势条) */
+.pb-safe {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+.pt-safe {
+  padding-top: env(safe-area-inset-top);
+}
