@@ -91,6 +91,14 @@ export function QuantitySheet({ product, existing, onConfirm, onDelete, onClose 
               inputMode="numeric"
               pattern="[0-9]*"
               min={0}
+              name="stocktake-qty"
+              autoComplete="off"
+              autoCorrect="off"
+              autoCapitalize="off"
+              spellCheck={false}
+              data-1p-ignore
+              data-lpignore="true"
+              data-form-type="other"
               value={qty}
               placeholder="0"
               onChange={(e) => setQty(e.target.value.replace(/[^0-9]/g, ''))}

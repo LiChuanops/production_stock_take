@@ -98,8 +98,14 @@ export function OperatorPicker({ value, options, onChange }: Props) {
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder={t('searchName')}
+                  name="stocktake-operator-search"
                   autoComplete="off"
+                  autoCorrect="off"
+                  autoCapitalize="off"
                   spellCheck={false}
+                  data-1p-ignore
+                  data-lpignore="true"
+                  data-form-type="other"
                   className="mt-3 min-h-[48px] w-full rounded-xl border-2 border-slate-200 px-3 text-[16px] focus:border-slate-900 focus:outline-none"
                 />
               ) : null}

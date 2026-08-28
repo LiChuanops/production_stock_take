@@ -248,10 +248,14 @@ export function CountPage() {
             }
           }}
           enterKeyHint="search"
+          name="stocktake-scan"
           autoComplete="off"
           autoCorrect="off"
           autoCapitalize="off"
           spellCheck={false}
+          data-1p-ignore
+          data-lpignore="true"
+          data-form-type="other"
           placeholder={t('scanPlaceholder')}
           className="min-h-[52px] w-full rounded-xl border-2 border-slate-200 px-4 text-[17px] text-slate-900 focus:border-slate-900 focus:outline-none"
         />
