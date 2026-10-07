@@ -1,7 +1,7 @@
 import type { RoomConfig } from './types'
 
 /**
- * Supabase anon key —— 这把钥匙是「设计上就公开」的,前端一定看得到。
+ * Supabase publishable key（取代旧的 anon JWT，权限相同）—— 这把钥匙是「设计上就公开」的,前端一定看得到。
  * 它的权限完全由资料库的 RLS 决定,这支 app 只拿它读 app_product_list_items。
  *
  * ⚠️ 绝对不要把 service_role key 放进这个 repo。那把钥匙无视 RLS,
@@ -9,7 +9,7 @@ import type { RoomConfig } from './types'
  */
 export const SUPABASE_URL = 'https://jbpvqlvlokvqpkulisxi.supabase.co'
 export const SUPABASE_ANON_KEY =
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpicHZxbHZsb2t2cXBrdWxpc3hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwNTE3NzYsImV4cCI6MjA3NTYyNzc3Nn0.cwCoHFCy3K_HdTIIk_jJUCgMXIdub2HbnxqTETBKans'
+  'sb_publishable_tVkvVgunKW_MKrfYA4oSWw_VRVotURs'
 
 /**
  * 包装房那支 Apps Script 的 /exec 网址 —— CR3 / CR3T / CR5c 三个分页共用同一支。
